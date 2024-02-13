@@ -28,7 +28,8 @@
         })
         conn.on('close', function () {
             isConnected = false;
-            friendPeerId = ""
+            friendPeerId = "";
+            messages = [];
         });
     }
 
@@ -65,7 +66,8 @@
         })
         connect.on('close', function () {
             isConnected = false;
-            friendPeerId = ""
+            friendPeerId = "";
+            messages = [];
         });
     }
 
@@ -73,15 +75,10 @@
         conn.close()
     }
 
-    const close = () => {
-        console.log("abc");
-    }
-
     onMount(()=>{
         peer = new Peer();
         peer.on("open", peerOpen)
         peer.on("connection", peerConnection)
-        peer.on("disconnected", close)
     })
 
     let url = "";

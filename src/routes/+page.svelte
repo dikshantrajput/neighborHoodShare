@@ -2,6 +2,7 @@
     import Peer from "peerjs";
     import {onMount} from "svelte";
     import QR from '@svelte-put/qr/svg/QR.svelte';
+    import { page } from '$app/stores';
 
     let peerId = "";
     let friendPeerId = "";
@@ -82,6 +83,9 @@
         peer.on("connection", peerConnection)
         peer.on("disconnected", close)
     })
+
+    let url = "";
+    $: url = `${$page.url.origin}?peerId=${peerId}`, console.log(url)
 </script>
 <!--  TODO: error handling throughout -->
 
@@ -119,12 +123,12 @@
     <div>
         <h3>Scan to connect</h3>
         <QR
-        data="http://192.168.29.71:5173?peerId={peerId}"
-        moduleFill="violet"
-        anchorOuterFill="red"
-        anchorInnerFill="violet"
-        height=200
-        width=200
+            data={url}
+            moduleFill="violet"
+            anchorOuterFill="red"
+            anchorInnerFill="violet"
+            height=200
+            width=200
         />
     </div>
 {/if}

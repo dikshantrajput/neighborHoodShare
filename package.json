@@ -19,7 +19,6 @@
 	"dependencies": {
 		"i": "^0.3.7",
 		"npm": "^10.4.0",
-		"peerjs": "^1.5.2",
-		"svelte-qrcode": "^1.0.0"
+		"peerjs": "^1.5.2"
 	}
 }

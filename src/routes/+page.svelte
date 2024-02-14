@@ -77,7 +77,7 @@
 
     const localConnection = (connect) => {
         conn = connect;
-        connect.on("data", (data) => {
+        connect.on("data", (incomingPayload) => {
             const type = incomingPayload.type
             if(type === types.file){
                 // download file

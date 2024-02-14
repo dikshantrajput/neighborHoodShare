@@ -11,6 +11,40 @@
     let conn = undefined;
     let isConnected = false;
     let messages = [];
+    let fileChunks = [];
+    let fileName = "";
+    let startReceivingFileChunk = false;
+    let files, input;
+    let speed = 0;
+    let totalChunks = 0;
+    let currentChunkCount = 0;
+    let fileChunkStartTimestampInMs = 0;
+    const chunkSize = 10 * 1024;
+
+    function combineUint8Arrays(arrays) {
+        // Get the total length of all arrays.
+        let length = 0;
+        console.log({ arrays });
+        const a = arrays.map((item) => {
+            if(item instanceof ArrayBuffer){
+                item = new Uint8Array(item)
+            }
+            return item;
+        });
+
+        a.forEach((item)=>{
+            length += item.length
+        })
+
+        // Create a new array with total length and merge all source arrays.
+        let mergedArray = new Uint8Array(length);
+        let offset = 0;
+        a.forEach((item) => {
+            mergedArray.set(item, offset);
+            offset += item.length;
+        });
+        return mergedArray;
+    }
 
     const outgoingConnection = () => {
         conn = peer.connect(friendPeerId);
@@ -20,11 +54,43 @@
             isConnected = true;
         });
         conn.on("data", (incomingPayload) => {
-            const type = incomingPayload.type
-            if(type === types.file){
-                // download file
-                downloadBlob(incomingPayload.data.file, incomingPayload.data.fileName, 'application/octet-stream')
-            }else if(type === types.message){
+            // receiving end
+            const type = incomingPayload.type;
+            if (type === types.file) {
+                // handle cases where we get start signal but no end signal
+                if (
+                    startReceivingFileChunk &&
+                    incomingPayload &&
+                    incomingPayload.action !== "end"
+                ) {
+                    fileChunks.push(incomingPayload.data.buffer);
+                    currentChunkCount = incomingPayload.data.currentChunkCount;
+                    const currentTs = Math.floor(Date.now() / 1000);
+                    speed =
+                        (currentTs - fileChunkStartTimestampInMs) * chunkSize;
+                }
+
+                if (incomingPayload.action === "start") {
+                    startReceivingFileChunk = true;
+                    fileChunkStartTimestampInMs = Math.floor(Date.now() / 1000);
+                    fileName = incomingPayload.data.fileName;
+                    totalChunks = incomingPayload.data.totalChunksCount;
+                    fileChunks = [];
+                }
+
+                if (incomingPayload.action === "end") {
+                    // download file
+                    downloadBlob(
+                        combineUint8Arrays(fileChunks),
+                        fileName,
+                        "application/octet-stream",
+                    );
+                    startReceivingFileChunk = false;
+                    fileChunks = [];
+                    fileName = "";
+                    input.value = "";
+                }
+            } else if (type === types.message) {
                 messages.push(`Friend: ${incomingPayload.data}`);
                 messages = messages;
             }
@@ -61,7 +127,7 @@
     const sendMessage = () => {
         messages.push(`You: ${message}`);
         messages = messages;
-        const data = generateOutgoingPayload(types.message, message)
+        const data = generateOutgoingPayload(types.message, message);
         conn.send(data);
         message = "";
     };
@@ -78,13 +144,45 @@
     const localConnection = (connect) => {
         conn = connect;
         connect.on("data", (incomingPayload) => {
-            const type = incomingPayload.type
-            if(type === types.file){
-                // download file
-                downloadBlob(incomingPayload.data.file, incomingPayload.data.fileName, 'application/octet-stream')
-                messages.push(`Friend: ${incomingPayload.data}`);
-                messages = messages;
-            }else if(type === types.message){
+            const type = incomingPayload.type;
+            if (type === types.file) {
+                // handle cases where we get start signal but no end signal
+                if (
+                    startReceivingFileChunk &&
+                    incomingPayload &&
+                    incomingPayload.action !== "end"
+                ) {
+                    fileChunks.push(incomingPayload.data.buffer);
+                    currentChunkCount = incomingPayload.data.currentChunkCount;
+                    const currentTs = Math.floor(Date.now() / 1000);
+                    speed =
+                        ((currentChunkCount /
+                            (currentTs - fileChunkStartTimestampInMs)) *
+                            chunkSize) /
+                        1024;
+                }
+
+                if (incomingPayload.action === "start") {
+                    startReceivingFileChunk = true;
+                    fileChunkStartTimestampInMs = Math.floor(Date.now() / 1000);
+                    fileName = incomingPayload.data.fileName;
+                    totalChunks = incomingPayload.data.totalChunksCount;
+                    fileChunks = [];
+                }
+
+                if (incomingPayload.action === "end") {
+                    // download file
+                    downloadBlob(
+                        combineUint8Arrays(fileChunks),
+                        fileName,
+                        "application/octet-stream",
+                    );
+                    startReceivingFileChunk = false;
+                    fileChunks = [];
+                    fileName = "";
+                    input.value = "";
+                }
+            } else if (type === types.message) {
                 messages.push(`Friend: ${incomingPayload.data}`);
                 messages = messages;
             }
@@ -118,27 +216,53 @@
     let url = "";
     $: url = `${$page.url.origin}?peerId=${peerId}`;
 
-    const generateOutgoingPayload = (type, data) => {
+    const generateOutgoingPayload = (type, data, action = "") => {
         return {
+            action,
             type,
-            data
-        }
-    }
+            data,
+        };
+    };
 
     const types = {
         file: "file",
-        message: "message"
-    }
-
-    const onFileSelected = (e) => {
-        let file = e.target.files[0];
-        const filePayload = {
-            file,
-            fileName: file.name
-        }
-        const data = generateOutgoingPayload(types.file, filePayload)
-        conn.send(data);
+        message: "message",
     };
+
+    $: if (files) {
+        let file = files[0];
+        file.arrayBuffer().then((buff) => {
+            // send signal of file sharing
+            let totalChunksCount = Math.floor(buff.byteLength / chunkSize);
+            conn.send(
+                generateOutgoingPayload(
+                    types.file,
+                    { fileName: file.name, totalChunksCount },
+                    "start",
+                ),
+            );
+            let startPointer = 0;
+            let end = buff.byteLength;
+
+            let chunkCount = 1;
+            let newStartPointer = 0;
+
+            while (startPointer < end) {
+                newStartPointer = startPointer + chunkSize;
+                const chunk = buff.slice(startPointer, newStartPointer);
+                conn.send(
+                    generateOutgoingPayload(
+                        types.file,
+                        { buffer: chunk, currentChunkCount: chunkCount },
+                        "progress",
+                    ),
+                );
+                chunkCount++;
+                startPointer = newStartPointer;
+            }
+            conn.send(generateOutgoingPayload(types.file, file.name, "end"));
+        });
+    }
 </script>
 
 <!--  TODO: error handling throughout -->
@@ -162,14 +286,23 @@
     {/if}
 </div>
 
-<div>
-    <label for="send"> Send message </label>
+{#if isConnected}
+    <div>
+        <label for="send"> Send message </label>
 
-    <textarea id="send" bind:value={message} />
-    <button on:click={sendMessage}>Send</button>
+        <textarea id="send" bind:value={message} />
+        <button on:click={sendMessage}>Send</button>
 
-    <input type="file" on:change={(e) => onFileSelected(e)} />
-</div>
+        <input type="file" bind:files bind:this={input} />
+    </div>
+{/if}
+
+{#if startReceivingFileChunk}
+    <div>
+        Getting file in progress: {fileName}
+    </div>
+{/if}
+Average mbps: {speed}
 
 {#if !isConnected}
     <div>

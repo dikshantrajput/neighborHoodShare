@@ -1,12 +1,14 @@
 <script>
-    import Peer from "peerjs";
     import { onMount } from "svelte";
     import QR from "@svelte-put/qr/svg/QR.svelte";
     import { page } from "$app/stores";
+    import P2P from "$lib/utils/peer";
+    import Room from "$lib/utils/room";
 
     let peerId = "";
     let friendPeerId = "";
     let peer = undefined;
+    let room = undefined;
     let message = "";
     let conn = undefined;
     let isConnected = false;
@@ -47,62 +49,63 @@
     }
 
     const outgoingConnection = () => {
-        conn = peer.connect(friendPeerId);
-        conn.on("open", () => {
-            message = "connected to " + friendPeerId;
-            sendMessage();
-            isConnected = true;
-        });
-        conn.on("data", (incomingPayload) => {
-            // receiving end
-            const type = incomingPayload.type;
-            if (type === types.file) {
-                // handle cases where we get start signal but no end signal
-                if (
-                    startReceivingFileChunk &&
-                    incomingPayload &&
-                    incomingPayload.action !== "end"
-                ) {
-                    fileChunks.push(incomingPayload.data.buffer);
-                    currentChunkCount = incomingPayload.data.currentChunkCount;
-                    const currentTs = Math.floor(Date.now() / 1000);
-                    speed =
-                        (currentTs - fileChunkStartTimestampInMs) * chunkSize;
-                }
+        // conn = peer.connect(friendPeerId);
+        // conn.on("open", () => {
+        //     message = "connected to " + friendPeerId;
+        //     sendMessage();
+        //     isConnected = true;
+        // });
+        // conn.on("data", (incomingPayload) => {
+        //     // receiving end
+        //     const type = incomingPayload.type;
+        //     if (type === types.file) {
+        //         // handle cases where we get start signal but no end signal
+        //         if (
+        //             startReceivingFileChunk &&
+        //             incomingPayload &&
+        //             incomingPayload.action !== "end"
+        //         ) {
+        //             fileChunks.push(incomingPayload.data.buffer);
+        //             currentChunkCount = incomingPayload.data.currentChunkCount;
+        //             const currentTs = Math.floor(Date.now() / 1000);
+        //             speed =
+        //                 (currentTs - fileChunkStartTimestampInMs) * chunkSize;
+        //         }
 
-                if (incomingPayload.action === "start") {
-                    startReceivingFileChunk = true;
-                    fileChunkStartTimestampInMs = Math.floor(Date.now() / 1000);
-                    fileName = incomingPayload.data.fileName;
-                    totalChunks = incomingPayload.data.totalChunksCount;
-                    fileChunks = [];
-                }
+        //         if (incomingPayload.action === "start") {
+        //             startReceivingFileChunk = true;
+        //             fileChunkStartTimestampInMs = Math.floor(Date.now() / 1000);
+        //             fileName = incomingPayload.data.fileName;
+        //             totalChunks = incomingPayload.data.totalChunksCount;
+        //             fileChunks = [];
+        //         }
 
-                if (incomingPayload.action === "end") {
-                    // download file
-                    downloadBlob(
-                        combineUint8Arrays(fileChunks),
-                        fileName,
-                        "application/octet-stream",
-                    );
-                    startReceivingFileChunk = false;
-                    fileChunks = [];
-                    fileName = "";
-                    input.value = "";
-                }
-            } else if (type === types.message) {
-                messages.push(`Friend: ${incomingPayload.data}`);
-                messages = messages;
-            }
-        });
-        conn.on("error", (error) => {
-            console.log(error);
-        });
-        conn.on("close", function () {
-            isConnected = false;
-            friendPeerId = "";
-            messages = [];
-        });
+        //         if (incomingPayload.action === "end") {
+        //             // download file
+        //             downloadBlob(
+        //                 combineUint8Arrays(fileChunks),
+        //                 fileName,
+        //                 "application/octet-stream",
+        //             );
+        //             startReceivingFileChunk = false;
+        //             fileChunks = [];
+        //             fileName = "";
+        //             input.value = "";
+        //         }
+        //     } else if (type === types.message) {
+        //         messages.push(`Friend: ${incomingPayload.data}`);
+        //         messages = messages;
+        //     }
+        // });
+        // conn.on("error", (error) => {
+        //     console.log(error);
+        // });
+        // conn.on("close", function () {
+        //     isConnected = false;
+        //     friendPeerId = "";
+        //     messages = [];
+        // });
+        peer.newConnection(friendPeerId)
     };
 
     const downloadBlob = (data, fileName, mimeType) => {
@@ -125,10 +128,12 @@
     };
 
     const sendMessage = () => {
-        messages.push(`You: ${message}`);
-        messages = messages;
-        const data = generateOutgoingPayload(types.message, message);
-        conn.send(data);
+        // messages.push(`You: ${message}`);
+        // messages = messages;
+        // const data = generateOutgoingPayload(types.message, message);
+        // conn.send(data);
+
+        room?.sendMessage(message)
         message = "";
     };
 
@@ -203,15 +208,33 @@
         });
     };
 
+    
     const handleDisconnect = () => {
         conn.close();
     };
 
+    let m = []
     onMount(() => {
-        peer = new Peer();
-        peer.on("open", peerOpen);
-        peer.on("connection", localConnection);
+        peer = new P2P();
+        peer.events.subscribe((event)=>{
+            if(event?.type === "sessionStarted"){
+                peerId = peer.nodeId;
+            }
+            if(event?.type === "connectionEstablished"){
+                friendPeerId = peer.otherPartyId
+                isConnected = true;
+                // create a room
+                room = new Room(event?.channel, peerId, friendPeerId)
+            }
+            if(event?.type === "connectionDropped"){
+                friendPeerId = ""
+                isConnected = false;
+            }
+        })
     });
+
+    $: msgs = room?.messages
+    $: console.log("msgs", $msgs);
 
     let url = "";
     $: url = `${$page.url.origin}?peerId=${peerId}`;
@@ -319,9 +342,13 @@ Average mbps: {speed}
 {/if}
 
 <ul>
-    {#each messages as message, index (index)}
-        <li>
-            {message?.replace(peerId, "You")}
-        </li>
-    {/each}
+    {#if $msgs}
+        {#each $msgs as message, index (index)}
+            <li>
+                {message.peerId === peerId ? "You: " : "Other: "}
+                {message.message}
+                <!-- {message?.replace(peerId, "You")} -->
+            </li>
+        {/each}
+    {/if}
 </ul>

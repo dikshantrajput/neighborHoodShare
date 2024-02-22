@@ -55,7 +55,7 @@ class P2P{
 
     newConnectionEstablished(channel){
         this.channel = channel
-        if(this.channel){
+        if(this.channel?.peer){
             this.otherPartyId = this.channel.peer
             this.events.set({type:"connectionEstablished", channel: this.channel})
         }
@@ -101,7 +101,7 @@ class P2P{
     newConnection(nodeIdToConnectTo){
         this.checkPeerExistenceOrThrow()
         this.channel = this.peer.connect(nodeIdToConnectTo)
-        if(this.channel){
+        if(this.channel?.peer){
             this.otherPartyId = this.channel.peer
             this.channel.on("open", ()=>{
                 this.events.set({type:"connectionEstablished", channel: this.channel})

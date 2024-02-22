@@ -219,6 +219,10 @@
         peer.events.subscribe((event)=>{
             if(event?.type === "sessionStarted"){
                 peerId = peer.nodeId;
+                const param = new URLSearchParams(window.location.search).get("peerId");
+                if (param) {
+                    peer.newConnection(param)
+                }
             }
             if(event?.type === "connectionEstablished"){
                 friendPeerId = peer.otherPartyId

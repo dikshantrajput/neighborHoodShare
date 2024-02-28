@@ -58,11 +58,13 @@ class P2P{
         if(this.channel?.peer){
             this.otherPartyId = this.channel.peer
             this.events.set({type:"connectionEstablished", channel: this.channel})
+            this.channel.on("close", () => {
+                this.events.set({type:"connectionDropped", channel: this.channel})
+            })
         }
     }
 
     peerConnectionDisconnected(){
-        console.log(this.channel);
         console.log("Peer is disconnected ", );
         this.events.set({type:"connectionDropped"})
         this.reconnectPeerSession()
@@ -103,9 +105,18 @@ class P2P{
         this.channel = this.peer.connect(nodeIdToConnectTo)
         if(this.channel?.peer){
             this.otherPartyId = this.channel.peer
-            this.channel.on("open", ()=>{
+            this.channel.on("open", () => {
                 this.events.set({type:"connectionEstablished", channel: this.channel})
             })
+            this.channel.on("close", () => {
+                this.events.set({type:"connectionDropped", channel: this.channel})
+            })
+        }
+    }
+
+    disconnectPeer(){
+        if(this.channel?.peer){
+            this.channel.close()
         }
     }
     

@@ -40,3 +40,15 @@ export const combineUint8Arrays = (arrays) => {
     });
     return mergedArray;
 }
+
+export function* chunkGenerator(buffer, chunkSize) {
+    let startPointer = 0;
+    const end = buffer.byteLength;
+
+    while (startPointer < end) {
+        const newStartPointer = Math.min(startPointer + chunkSize, end);
+        const chunk = buffer.slice(startPointer, newStartPointer);
+        yield chunk;
+        startPointer = newStartPointer;
+    }
+}

@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { dataTypes, fileSignals } from "./constants";
-import { combineUint8Arrays, downloadBlob } from "./helpers";
+import { chunkGenerator, combineUint8Arrays } from "./helpers";
 
 class Room{
     you;
@@ -22,10 +22,18 @@ class Room{
         this.files = []
 
         this.channel.on("data", this.listenDataFromThem.bind(this))
+        this.channel.on("close", this.destroy.bind(this))
     }   
 
+    destroy(){
+        this.channel = undefined
+        this.you = undefined;
+        this.their = undefined;
+        this.messages.set([])
+        this.files = []
+    }
+
     listenDataFromThem(data){
-        console.log(data);
         const type = data.type
         if (type === dataTypes.file) {
             // handle cases where we get start signal but no end signal
@@ -53,18 +61,13 @@ class Room{
 
             if (data.binary.signal === fileSignals.end) {
                 // download file
-                console.log(this.fileChunks);
-                downloadBlob(
-                    combineUint8Arrays(this.fileChunks),
-                    this.fileName,
-                    "application/octet-stream",
-                );
+                this.appendMessagesList({peerId: this.their, type: dataTypes.file, fileName: this.fileName, file: combineUint8Arrays(this.fileChunks)})
                 this.startReceivingFileChunk = false;
                 this.fileChunks = [];
                 this.fileName = "";
             }
         } else if(type === dataTypes.message){
-            this.appendMessagesList({peerId: this.their, message: data?.binary})
+            this.appendMessagesList({peerId: this.their, message: data?.binary, type: dataTypes.message})
         }
     }
 
@@ -82,41 +85,39 @@ class Room{
     sendMessage(msg){
         const data = this.generateSendDataPayload(dataTypes.message, msg)
         this.sendData(data)
-        this.appendMessagesList({peerId: this.you, message: msg})
+        this.appendMessagesList({peerId: this.you, message: msg, type: dataTypes.message})
     }
     
     appendMessagesList(data){
         this.messages.update((prev) => [data , ...prev ])
     }
 
-    sendFileChunk(file){
-        const data = this.generateSendDataPayload(dataTypes.message, msg)
-        this.sendData(data)
+    sendFileChunks(fileBuffer){
+        let chunkCount = 1;
+        const generator = chunkGenerator(fileBuffer, this.chunkSize);
+        for (const chunk of generator) {
+            const data = this.generateSendDataPayload(dataTypes.file, { buffer: chunk, currentChunkCount: chunkCount++, signal: fileSignals.progress });
+            this.sendData(data);
+        }
     }
 
     // For sending binary file
-    sendFile(file){
-        file.arrayBuffer().then((buff) => {
+    async sendFile(file){
+        try{
+            const buff = await file.arrayBuffer()
             // send signal of file sharing
-            let totalChunksCount = Math.floor(buff.byteLength / this.chunkSize);
-            this.sendData(this.generateSendDataPayload(dataTypes.file, { fileName: file.name, totalChunksCount, signal: fileSignals.start }))
-
-            let startPointer = 0;
-            let end = buff.byteLength;
-            let chunkCount = 1;
-            let newStartPointer = 0;
-            // TODO: use generator function to get the next chunks
-            while (startPointer < end) {
-                newStartPointer = startPointer + this.chunkSize;
-                const chunk = buff.slice(startPointer, newStartPointer);
-                const data = this.generateSendDataPayload(dataTypes.file, { buffer: chunk, currentChunkCount: chunkCount, signal: fileSignals.progress })
-                this.sendData(data)
-                chunkCount++;
-                startPointer = newStartPointer;
-            }
-
+            this.sendData(this.generateSendDataPayload(dataTypes.file, { fileName: file.name, totalChunks: Math.floor(buff.byteLength / this.chunkSize), signal: fileSignals.start }))
+    
+            // send signal of file sharing in progress
+            this.sendFileChunks(buff)
+    
+            // send signal of file sharing completed
             this.sendData(this.generateSendDataPayload(dataTypes.file, { fileName: file.name, signal: fileSignals.end }))
-        });
+
+            this.appendMessagesList({peerId: this.you, type: dataTypes.file, fileName: file.name, file: undefined})
+        }catch(error){
+            console.log("Error splitting file", error);
+        }
     }
 }
 

@@ -128,11 +128,6 @@
     };
 
     const sendMessage = () => {
-        // messages.push(`You: ${message}`);
-        // messages = messages;
-        // const data = generateOutgoingPayload(types.message, message);
-        // conn.send(data);
-
         room?.sendMessage(message)
         message = "";
     };
@@ -238,7 +233,6 @@
     });
 
     $: msgs = room?.messages
-    $: console.log("msgs", $msgs);
 
     let url = "";
     $: url = `${$page.url.origin}?peerId=${peerId}`;
@@ -258,38 +252,40 @@
 
     $: if (files) {
         let file = files[0];
-        file.arrayBuffer().then((buff) => {
-            // send signal of file sharing
-            let totalChunksCount = Math.floor(buff.byteLength / chunkSize);
-            conn.send(
-                generateOutgoingPayload(
-                    types.file,
-                    { fileName: file.name, totalChunksCount },
-                    "start",
-                ),
-            );
-            let startPointer = 0;
-            let end = buff.byteLength;
+        // file.arrayBuffer().then((buff) => {
+        //     // send signal of file sharing
+        //     let totalChunksCount = Math.floor(buff.byteLength / chunkSize);
+        //     conn.send(
+        //         generateOutgoingPayload(
+        //             types.file,
+        //             { fileName: file.name, totalChunksCount },
+        //             "start",
+        //         ),
+        //     );
+        //     let startPointer = 0;
+        //     let end = buff.byteLength;
 
-            let chunkCount = 1;
-            let newStartPointer = 0;
+        //     let chunkCount = 1;
+        //     let newStartPointer = 0;
 
-            while (startPointer < end) {
-                newStartPointer = startPointer + chunkSize;
-                const chunk = buff.slice(startPointer, newStartPointer);
-                conn.send(
-                    generateOutgoingPayload(
-                        types.file,
-                        { buffer: chunk, currentChunkCount: chunkCount },
-                        "progress",
-                    ),
-                );
-                chunkCount++;
-                startPointer = newStartPointer;
-            }
-            conn.send(generateOutgoingPayload(types.file, file.name, "end"));
-        });
-    }
+        //     while (startPointer < end) {
+        //         newStartPointer = startPointer + chunkSize;
+        //         const chunk = buff.slice(startPointer, newStartPointer);
+        //         conn.send(
+        //             generateOutgoingPayload(
+        //                 types.file,
+        //                 { buffer: chunk, currentChunkCount: chunkCount },
+        //                 "progress",
+        //             ),
+        //         );
+        //         chunkCount++;
+        //         startPointer = newStartPointer;
+        //     }
+        //     conn.send(generateOutgoingPayload(types.file, file.name, "end"));
+        // });
+
+        room?.sendFile(file)
+}
 </script>
 
 <!--  TODO: error handling throughout -->

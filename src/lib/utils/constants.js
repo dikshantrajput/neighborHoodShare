@@ -8,3 +8,8 @@ export const fileSignals = {
     progress: "progress",
     end: "end",
 };
+
+export const currentSessionTypes = {
+    h: 'host',
+    p: 'participant',
+}

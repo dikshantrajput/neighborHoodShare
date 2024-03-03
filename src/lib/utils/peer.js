@@ -57,7 +57,7 @@ class P2P{
         this.channel = channel
         if(this.channel?.peer){
             this.otherPartyId = this.channel.peer
-            this.events.set({type:"connectionEstablished", channel: this.channel})
+            this.events.set({type:"connectionReceived", channel: this.channel})
             this.channel.on("close", () => {
                 this.events.set({type:"connectionDropped", channel: this.channel})
             })

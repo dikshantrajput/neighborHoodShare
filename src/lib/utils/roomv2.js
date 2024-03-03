@@ -23,6 +23,12 @@ class RoomV2{
         // this.channel.on("close", this.destroy.bind(this))
     }   
     
+    join(pId, channel){
+        // this.participants.update((prev) => [pId , ...prev ])
+        this.connectionChannels[pId] = channel
+        channel.on("data", this.listenDataFromHost.bind(this))
+    }
+
     addParticipants(pId, channel){
         this.participants.update((prev) => [pId , ...prev ])
         this.connectionChannels[pId] = channel

@@ -1,6 +1,6 @@
 <script>
     import { goto } from '$app/navigation';;
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     // import QR from "@svelte-put/qr/svg/QR.svelte";
     import { page } from "$app/stores";
     import P2P from "$lib/utils/peer";
@@ -8,9 +8,10 @@
     import {dataTypes} from "$lib/utils/constants";
     import {downloadBlob} from "$lib/utils/helpers";
     import {currentSessionStore} from '$lib/stores/currentSessionStore'
+    import Dice from "$lib/components/Dice.svelte";
 
     let peerId = "";
-    let friendPeerId = "";
+    let hostPeerId = "";
     let peer = undefined;
     let room = undefined;
     let message = "";
@@ -21,7 +22,7 @@
     let speed = 0;
 
     const outgoingConnection = () => {
-        peer.newConnection(friendPeerId)
+        peer.newConnection(hostPeerId)
     };
 
     const sendMessage = () => {
@@ -44,14 +45,18 @@
                     peer.newConnection(param)
                 }
             }
+            if(event?.type === "connectionReceived"){
+                isConnected = true;
+                room.addParticipants(peer.otherPartyId, event.channel)
+            }
             if(event?.type === "connectionEstablished"){
-                friendPeerId = peer.otherPartyId
+                hostPeerId = peer.otherPartyId
                 isConnected = true;
                 // add participant in room
-                room.addParticipants(friendPeerId, event.channel)
+                room.join(hostPeerId, event.channel)
             }
             if(event?.type === "connectionDropped"){
-                friendPeerId = ""
+                hostPeerId = ""
                 isConnected = false;
             }
         })
@@ -77,6 +82,15 @@
 
     // let actingAs = $currentSessionStore
     // if(! actingAs) goto("/choose")
+
+    let dice1 = 0, dice2 = 0
+
+    const handleRollDiceByParticipant = () => {
+        console.log({dice1, dice2});
+
+        // send to host
+        room?.sendMessage(`${dice1}_${dice2}`)
+    }
 </script>
 
 <!-- You are {actingAs} -->
@@ -87,26 +101,45 @@
     <Participant />
 {/if} -->
 <!--  TODO: error handling throughout -->
-<h1>Your peer id: {peerId}</h1>
-<h3>
-    {#if !isConnected}
-        Connect to a peer
-    {:else}
-        Connected to {friendPeerId}
-    {/if}
-</h3>
+
+{#if !isConnected || !hostPeerId}
+    <h1>Room id: {peerId}</h1>
+{/if}
+
+{#if !$participants?.length}
+    <h3>
+        {#if !isConnected}
+            Join a room
+        {:else}
+            Joined room: {hostPeerId}
+        {/if}
+    </h3>
+{/if}
+
+{#if $participants?.length}
+<h4>Participants</h4>
+<ul>
+    {#each $participants as participant}
+        <li>{participant}</li>
+    {/each}
+</ul>
+{/if}
 
 <div>
-    {#if !isConnected}
-        <label for="peerId"> Peer id </label>
-        <input type="text" id="peerId" bind:value={friendPeerId} />
+    {#if !$participants?.length && !isConnected}
+        <label for="peerId">Room id </label>
+        <input type="text" id="peerId" bind:value={hostPeerId} />
         <button on:click={outgoingConnection}>Connect</button>
     {:else}
-        <button on:click={handleDisconnect}>Disconnect</button>
+        {#if $participants.length}
+            <button on:click={handleDisconnect}>Close room</button>
+            {:else}
+            <button on:click={handleDisconnect}>Leave room</button>
+        {/if}
     {/if}
 </div>
 
-{#if isConnected}
+{#if $participants?.length}
     <div>
         <label for="send"> Send message </label>
 
@@ -122,7 +155,7 @@
         Getting file in progress: {fileName}
     </div>
 {/if}
-Average mbps: {speed}
+<!-- Average mbps: {speed} -->
 
 <!-- {#if !isConnected}
     <div>
@@ -155,3 +188,7 @@ Average mbps: {speed}
         {/each}
     {/if}
 </ul>
+
+{#if hostPeerId && isConnected}
+    <Dice bind:dice1 bind:dice2 on:roll={handleRollDiceByParticipant} />
+{/if}

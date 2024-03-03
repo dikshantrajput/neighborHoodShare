@@ -73,7 +73,7 @@ class Room{
 
     generateSendDataPayload(type, binary){
         // do other modifications for data here 
-        return { type, binary }
+        return { type, binary, createdAt: Date.now() }
     }
 
     // For sending all kinds of data

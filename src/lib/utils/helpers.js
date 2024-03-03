@@ -1,3 +1,5 @@
+import {dataTypes} from "$lib/utils/constants";
+
 const downloadURL = (data, fileName) => {
     const a = document.createElement("a");
     a.href = data;
@@ -51,4 +53,13 @@ export function* chunkGenerator(buffer, chunkSize) {
         yield chunk;
         startPointer = newStartPointer;
     }
+}
+
+export const prepareMessages = (messages, currentUserId) => {
+    return messages?.map((message, index) => ({
+        id: index,
+        sender: message?.peerId === currentUserId ? "me" : "friend",
+        content: message?.message,
+        file: message?.type === dataTypes.file ? {name: message?.fileName, url: message?.file} : undefined,
+    }))
 }

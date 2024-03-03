@@ -41,7 +41,6 @@ class P2P{
     }
 
     cleanupPeerSession(){
-        console.log("Cleanup peer session ", this.channel.peer);
         this.nodeId = undefined
         this.channel = undefined
         this.peer = undefined

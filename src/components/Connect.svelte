@@ -138,7 +138,7 @@
             <p class="text-center my-2 w-full">
                 OR
             </p>
-            <Button on:click={showQrModal}>Scan QR code</Button>
+            <Button on:click={showQrModal}>Connect using QR code</Button>
         </div>
         
     </div>

@@ -40,22 +40,23 @@
                     {#if message.sender === "friend"}
                         <div class="flex items-start">
                             <div class="bg-gray-200 p-2 rounded-md mr-2">
-                                {#if message.file}
-                                    <div class="flex items-center">
+                                <p class="text-gray-800">Friend: {#if message.file}
+                                    <div class="inline">
                                         <button
-                                            class="text-indigo-600 hover:underline ml-2 trunacte"
+                                            class="text-indigo-600 hover:underline trunacte"
                                             on:click={() =>
                                                 downloadFile(
                                                     message?.file?.url,
                                                     message?.file?.name,
                                                 )}
                                         >
-                                            {message.file.name}
+                                            <u>{message.file.name}</u>
                                         </button>
                                     </div>
                                 {:else}
                                     {message.content}
-                                {/if}
+                                {/if}</p>
+                                <p class="text-[10px] text-gray-500">{message.createdAt}</p>
                             </div>
                         </div>
                     {:else if message.sender === "me"}
@@ -63,22 +64,23 @@
                             <div
                                 class="bg-indigo-600 text-white p-2 rounded-md ml-2"
                             >
-                                {#if message.file}
-                                    <div class="flex items-center">
+                                <p class="text-white">You: {#if message.file}
+                                    <div class="inline">
                                         <button
-                                            class="text-gray-200 hover:underline ml-2 trunacte"
+                                            class="text-white hover:underline trunacte"
                                             on:click={() =>
                                                 downloadFile(
                                                     message?.file?.url,
                                                     message?.file?.name,
                                                 )}
                                         >
-                                            {message.file.name}
+                                            <u>{message.file.name}</u>
                                         </button>
                                     </div>
                                 {:else}
                                     {message.content}
-                                {/if}
+                                {/if}</p>
+                                <p class="text-[10px] text-gray-200">{message.createdAt}</p>
                             </div>
                         </div>
                     {/if}

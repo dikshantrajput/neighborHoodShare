@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { dataTypes, fileSignals } from "./constants";
-import { chunkGenerator, combineUint8Arrays } from "./helpers";
+import { chunkGenerator, combineUint8Arrays, formatCurrentDateTime } from "./helpers";
 
 class Room{
     you;
@@ -13,8 +13,12 @@ class Room{
     totalChunks = 0;
     startReceivingFileChunk = false;
     fileName = "";
+    // userNames = {
+    //     you: "",
+    //     their: ""
+    // };
 
-    constructor(channel, hostId, guestId){
+    constructor(channel, hostId, guestId, userName = ""){
         this.channel = channel
         this.you = hostId;
         this.their = guestId;
@@ -61,19 +65,22 @@ class Room{
 
             if (data.binary.signal === fileSignals.end) {
                 // download file
-                this.appendMessagesList({peerId: this.their, type: dataTypes.file, fileName: this.fileName, file: combineUint8Arrays(this.fileChunks)})
+                this.appendMessagesList({peerId: this.their, type: dataTypes.file, fileName: this.fileName, file: combineUint8Arrays(this.fileChunks),createdAt: data.createdAt})
                 this.startReceivingFileChunk = false;
                 this.fileChunks = [];
                 this.fileName = "";
             }
         } else if(type === dataTypes.message){
-            this.appendMessagesList({peerId: this.their, message: data?.binary, type: dataTypes.message})
-        }
+            this.appendMessagesList({peerId: this.their, message: data?.binary, type: dataTypes.message, createdAt: data.createdAt})
+        } 
+        // else if(type === dataTypes.userName){
+        //     this.userNames.their = data.binary.userName
+        // }
     }
 
     generateSendDataPayload(type, binary){
         // do other modifications for data here 
-        return { type, binary, createdAt: Date.now() }
+        return { type, binary, createdAt: formatCurrentDateTime() }
     }
 
     // For sending all kinds of data
@@ -85,8 +92,16 @@ class Room{
     sendMessage(msg){
         const data = this.generateSendDataPayload(dataTypes.message, msg)
         this.sendData(data)
-        this.appendMessagesList({peerId: this.you, message: msg, type: dataTypes.message})
+        this.appendMessagesList({peerId: this.you, message: msg, type: dataTypes.message, createdAt: data.createdAt})
     }
+
+    // sendUsername(userName){
+    //     if(userName){
+    //         this.userNames.you = userName
+    //         const data = this.generateSendDataPayload(dataTypes.userName, userName);
+    //         this.sendData(data)
+    //     }
+    // }
     
     appendMessagesList(data){
         this.messages.update((prev) => [data , ...prev ])
@@ -112,9 +127,10 @@ class Room{
             this.sendFileChunks(buff)
     
             // send signal of file sharing completed
-            this.sendData(this.generateSendDataPayload(dataTypes.file, { fileName: file.name, signal: fileSignals.end }))
+            const data = this.generateSendDataPayload(dataTypes.file, { fileName: file.name, signal: fileSignals.end })
+            this.sendData(data)
 
-            this.appendMessagesList({peerId: this.you, type: dataTypes.file, fileName: file.name, file: undefined})
+            this.appendMessagesList({peerId: this.you, type: dataTypes.file, fileName: file.name, file: undefined, createdAt: data.createdAt})
         }catch(error){
             console.log("Error splitting file", error);
         }

@@ -1,4 +1,5 @@
 import {dataTypes} from "$lib/utils/constants";
+import { format } from 'date-fns';
 
 const downloadURL = (data, fileName) => {
     const a = document.createElement("a");
@@ -61,5 +62,25 @@ export const prepareMessages = (messages, currentUserId) => {
         sender: message?.peerId === currentUserId ? "me" : "friend",
         content: message?.message,
         file: message?.type === dataTypes.file ? {name: message?.fileName, url: message?.file} : undefined,
+        createdAt: message?.createdAt
     }))
+}
+
+// Function to format current time date in the desired format
+export const formatCurrentDateTime = () => {
+  const now = new Date();
+  const formattedDate = format(now, "do MMM hh:mm a");
+  
+  // Convert 'st', 'nd', 'rd', 'th' for day
+  const day = formattedDate.substring(0, 2);
+  let suffix = 'th';
+  if (day.endsWith('1') && !day.endsWith('11')) {
+    suffix = 'st';
+  } else if (day.endsWith('2') && !day.endsWith('12')) {
+    suffix = 'nd';
+  } else if (day.endsWith('3') && !day.endsWith('13')) {
+    suffix = 'rd';
+  }
+
+  return formattedDate.replace(/(\d+)(st|nd|rd|th)/, `$1${suffix}`);
 }

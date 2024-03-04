@@ -53,7 +53,7 @@
         />
       </div>
       <p class="text-gray-600 text-lg font-bold">
-        Scan this QR code to connect with your friend.
+        Scan this QR code to connect with me.
       </p>
     </div>
   </div>

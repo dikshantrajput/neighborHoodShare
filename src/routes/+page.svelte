@@ -13,6 +13,7 @@
     let room = undefined;
     let isConnected = false;
     let isPeerJsLoading = false;
+    // let userName = "";
 
     const connectToAFriend = () => {
         peer.newConnection(friendPeerId)
@@ -44,6 +45,7 @@
                 isConnected = true;
                 // create a room
                 room = new Room(event?.channel, peerId, friendPeerId)
+                // room?.sendUsername(userName)
             }
             if(event?.type === "connectionDropped"){
                 friendPeerId = ""
@@ -60,11 +62,11 @@
         room?.sendFile(event.detail)
     }
 </script>
-
 <!-- TODO: file download for sender -->
 <!-- TODO: should not connect to self -->
 <!--  TODO: error handling throughout -->
 {#if !isConnected}
+<!-- bind:userName -->
     <Connect
         bind:friendPeerId
         isLoading={isPeerJsLoading}
@@ -72,7 +74,7 @@
         on:connect={connectToAFriend}
     />
     {:else}
-        <div class="bg-gray-50 max-w-[600px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] pt-5">
+        <div class="bg-gray-50 max-w-[600px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] mt-5">
             <SendMessage otherPartyId={friendPeerId} on:sendMessage={sendMessage} on:sendFile={sendFile} />
             {#if $msgs}
                 <MessageList messages={preparedMessages} />

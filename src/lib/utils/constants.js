@@ -1,6 +1,7 @@
 export const dataTypes = {
     file: "file",
     message: "message",
+    // userName: "userName"
 };
 
 export const fileSignals = {

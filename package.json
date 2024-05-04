@@ -21,6 +21,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@vercel/analytics": "^1.2.2",
 		"bits-ui": "^0.21.1",
 		"clsx": "^2.1.0",
 		"date-fns": "^3.3.1",

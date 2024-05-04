@@ -32,6 +32,7 @@
 
     // TODO: ERROR on not connected
     onMount(() => {
+        toast.loading("Setting up neighborhood for you...")
         isPeerJsLoading = true;
         peer = new P2P();
         peer.events.subscribe((event)=>{
@@ -42,6 +43,7 @@
                 if (param) {
                     peer.newConnection(param)
                 }
+                toast.success("Your neighborhood is ready...")
             }
             if(event?.type === "connectionEstablished"){
                 friendPeerId = peer.otherPartyId

@@ -26,6 +26,9 @@
             <a href="#connect" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
               Share files
             </a>
+            <a href="https://medium.com/@dikshantraj2001/nat-stun-turn-and-ice-466dabbc2fdb" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+              Learn about P2P networking
+            </a>
           </div>
         </div>
         <div class="flex lg:hidden">
@@ -53,6 +56,7 @@
         <div class="px-2 pt-2 pb-3 space-y-1">
           <a href="#features" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Features</a>
           <a href="#connect" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Share files</a>
+          <a href="https://medium.com/@dikshantraj2001/nat-stun-turn-and-ice-466dabbc2fdb" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Learn about P2P networking</a>
         </div>
       </div>
     {/if}

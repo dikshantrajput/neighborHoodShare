@@ -53,8 +53,8 @@
           moduleFill="#7c3aed"
           anchorOuterFill="red"
           anchorInnerFill="#7c3aed"
-          height="400"
-          width="400"
+          height="350"
+          width="350"
           />
         </div>
         <p class="mt-4 text-gray-400">

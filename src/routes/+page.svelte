@@ -67,7 +67,6 @@
         room?.sendFile(event.detail)
     }
 </script>
-<!-- TODO: file download for sender -->
 <!-- TODO: should not connect to self -->
 <!--  TODO: error handling throughout -->
 {#if !isConnected}

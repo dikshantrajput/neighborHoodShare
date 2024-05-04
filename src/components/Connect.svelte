@@ -142,7 +142,9 @@
             QR Code
           </button>
         </div>
-        <QrModal open={isQrModalOpen} {qrData} />
+        <div class="m-4">
+            <QrModal bind:open={isQrModalOpen} {qrData} />
+        </div>
       </div>
     </div>
   </section>

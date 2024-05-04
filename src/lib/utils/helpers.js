@@ -1,7 +1,7 @@
 import {dataTypes} from "$lib/utils/constants";
 import { format } from 'date-fns';
 
-const downloadURL = (data, fileName) => {
+export const downloadURL = (data, fileName) => {
     const a = document.createElement("a");
     a.href = data;
     a.download = fileName;
@@ -83,4 +83,14 @@ export const formatCurrentDateTime = () => {
   }
 
   return formattedDate.replace(/(\d+)(st|nd|rd|th)/, `$1${suffix}`);
+}
+
+export const bufferToObjectURL = (buffer) => {
+    // Create a Blob from the buffer data
+    const blob = new Blob([buffer]);
+
+    // Create an Object URL from the Blob
+    const objectURL = URL.createObjectURL(blob);
+
+    return objectURL;
 }

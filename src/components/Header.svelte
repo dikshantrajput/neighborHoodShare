@@ -1,7 +1,7 @@
 <header class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4">
     <div class="container mx-auto flex justify-between items-center">
       <div>
-        <h1 class="text-3xl font-semibold">PeerLink</h1>
+        <h1 class="text-3xl font-semibold">NeighborHoodShare</h1>
         <p class="text-sm">Connect and share messages and files securely!</p>
       </div>
       <div>

@@ -1,6 +1,5 @@
 <script>
-    import { downloadBlob } from "$lib/utils/helpers";
-    // Sample messages data
+    import { downloadURL } from "$lib/utils/helpers";
     export let messages = [
         {
             id: 1,
@@ -23,69 +22,67 @@
                 url: "https://example.com/project.zip",
             },
         },
-        // Add more messages as needed
     ];
 
     const downloadFile = (fileBufferArray, name) => {
-        downloadBlob(fileBufferArray, name, "application/octet-stream");
+        downloadURL(fileBufferArray, name, "application/octet-stream");
     };
 </script>
-
-{#if messages?.length}
-    <div class="max-w-lg mx-auto p-4">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Chat History</h2>
-        <ul>
-            {#each messages as message}
-                <li class="mb-4">
-                    {#if message.sender === "friend"}
-                        <div class="flex items-start">
-                            <div class="bg-gray-200 p-2 rounded-md mr-2">
-                                <p class="text-gray-800">Friend: {#if message.file}
-                                    <div class="inline">
-                                        <button
-                                            class="text-indigo-600 hover:underline trunacte"
-                                            on:click={() =>
-                                                downloadFile(
-                                                    message?.file?.url,
-                                                    message?.file?.name,
-                                                )}
-                                        >
-                                            <u>{message.file.name}</u>
-                                        </button>
-                                    </div>
-                                {:else}
-                                    {message.content}
-                                {/if}</p>
-                                <p class="text-[10px] text-gray-500">{message.createdAt}</p>
-                            </div>
+<div class="bg-slate-900 py-10" class:py-10={!!messages?.length}> 
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      {#if messages?.length}
+        <ul class="space-y-6">
+          {#each messages as message (message.id)}
+            <li class="animate-slide-up">
+              {#if message.sender === "friend"}
+                <div class="flex items-start">
+                  <div
+                    class="bg-slate-800 p-4 rounded-lg mr-4 shadow-md animate-scale-in"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <p class="text-gray-300 text-sm mr-2">Neighbor</p>
+                      <p class="text-gray-400 text-xs">{message.createdAt}</p>
+                    </div>
+                    <div class="text-gray-300">
+                      {#if message.file}
+                        <button
+                          class="text-indigo-400 hover:text-indigo-300 truncate transition duration-300"
+                          on:click={() => downloadFile(message?.file?.url, message?.file?.name)}
+                        >
+                          <u>{message.file.name}</u>
+                        </button>
+                      {:else}
+                        {message.content}
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+              {:else if message.sender === "me"}
+                <div class="flex items-start justify-end">
+                  <div
+                    class="bg-indigo-800 p-4 rounded-lg ml-4 shadow-md animate-scale-in"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <p class="text-gray-300 text-sm mr-2">You</p>
+                      <p class="text-gray-400 text-xs">{message.createdAt}</p>
+                    </div>
+                    <div class="text-gray-200">
+                      {#if message.file}
+                        <div
+                          class="text-indigo-300 hover:text-indigo-200 truncate transition duration-300"
+                        >
+                          {message.file.name}
                         </div>
-                    {:else if message.sender === "me"}
-                        <div class="flex items-start justify-end">
-                            <div
-                                class="bg-indigo-600 text-white p-2 rounded-md ml-2"
-                            >
-                                <p class="text-white">You: {#if message.file}
-                                    <div class="inline">
-                                        <button
-                                            class="text-white hover:underline trunacte"
-                                            on:click={() =>
-                                                downloadFile(
-                                                    message?.file?.url,
-                                                    message?.file?.name,
-                                                )}
-                                        >
-                                            <u>{message.file.name}</u>
-                                        </button>
-                                    </div>
-                                {:else}
-                                    {message.content}
-                                {/if}</p>
-                                <p class="text-[10px] text-gray-200">{message.createdAt}</p>
-                            </div>
-                        </div>
-                    {/if}
-                </li>
-            {/each}
+                      {:else}
+                        {message.content}
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+              {/if}
+            </li>
+          {/each}
         </ul>
+      {/if}
     </div>
-{/if}
+  </div>

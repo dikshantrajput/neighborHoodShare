@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import { dataTypes, fileSignals } from "./constants";
-import { chunkGenerator, combineUint8Arrays, formatCurrentDateTime } from "./helpers";
+import { bufferToObjectURL, chunkGenerator, combineUint8Arrays, formatCurrentDateTime } from "./helpers";
+import { toast } from "svelte-sonner";
 
 class Room{
     you;
@@ -13,10 +14,7 @@ class Room{
     totalChunks = 0;
     startReceivingFileChunk = false;
     fileName = "";
-    // userNames = {
-    //     you: "",
-    //     their: ""
-    // };
+    fileReceivingToastId = undefined;
 
     constructor(channel, hostId, guestId, userName = ""){
         this.channel = channel
@@ -40,6 +38,7 @@ class Room{
     listenDataFromThem(data){
         const type = data.type
         if (type === dataTypes.file) {
+            if(!this.fileReceivingToastId){ this.fileReceivingToastId = toast.loading("Receiving a file...",{duration: 9999999}) }
             // handle cases where we get start signal but no end signal
             if (
                 this.startReceivingFileChunk &&
@@ -65,10 +64,13 @@ class Room{
 
             if (data.binary.signal === fileSignals.end) {
                 // download file
-                this.appendMessagesList({peerId: this.their, type: dataTypes.file, fileName: this.fileName, file: combineUint8Arrays(this.fileChunks),createdAt: data.createdAt})
+                this.appendMessagesList({peerId: this.their, type: dataTypes.file, fileName: this.fileName, file: bufferToObjectURL(combineUint8Arrays(this.fileChunks)) ,createdAt: data.createdAt})
                 this.startReceivingFileChunk = false;
                 this.fileChunks = [];
                 this.fileName = "";
+                this.fileReceivingToastId && toast.dismiss(this.fileReceivingToastId)
+                this.fileReceivingToastId = undefined
+                toast.success("File received...")
             }
         } else if(type === dataTypes.message){
             this.appendMessagesList({peerId: this.their, message: data?.binary, type: dataTypes.message, createdAt: data.createdAt})
@@ -119,6 +121,7 @@ class Room{
     // For sending binary file
     async sendFile(file){
         try{
+            const toastId = toast.loading("Sharing file with neighbor...") 
             const buff = await file.arrayBuffer()
             // send signal of file sharing
             this.sendData(this.generateSendDataPayload(dataTypes.file, { fileName: file.name, totalChunks: Math.floor(buff.byteLength / this.chunkSize), signal: fileSignals.start }))
@@ -130,7 +133,9 @@ class Room{
             const data = this.generateSendDataPayload(dataTypes.file, { fileName: file.name, signal: fileSignals.end })
             this.sendData(data)
 
-            this.appendMessagesList({peerId: this.you, type: dataTypes.file, fileName: file.name, file: undefined, createdAt: data.createdAt})
+            toast.dismiss(toastId)
+            toast.success("File shared...") 
+            this.appendMessagesList({peerId: this.you, type: dataTypes.file, fileName: file.name, file: buff, createdAt: data.createdAt})
         }catch(error){
             console.log("Error splitting file", error);
         }

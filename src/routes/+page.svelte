@@ -6,14 +6,17 @@
     import Connect from "../components/Connect.svelte";
     import SendMessage from "../components/SendMessage.svelte";
     import MessageList from "../components/MessageList.svelte";
-    
+    import Hero from "../components/v2/Hero.svelte";
+    import Features from "../components/v2/Features.svelte";
+    import ScrollDownArrow from "../components/v2/ScrollDownArrow.svelte";
+    import { toast } from "svelte-sonner";
+
     let peerId = "";
     let friendPeerId = "";
     let peer = undefined;
     let room = undefined;
     let isConnected = false;
     let isPeerJsLoading = false;
-    // let userName = "";
 
     const connectToAFriend = () => {
         peer.newConnection(friendPeerId)
@@ -43,13 +46,13 @@
             if(event?.type === "connectionEstablished"){
                 friendPeerId = peer.otherPartyId
                 isConnected = true;
-                // create a room
                 room = new Room(event?.channel, peerId, friendPeerId)
-                // room?.sendUsername(userName)
+                toast.success("Connected!!!")
             }
             if(event?.type === "connectionDropped"){
                 friendPeerId = ""
                 isConnected = false;
+                toast.success("Disconnected!!!")
             }
         })
     });
@@ -66,19 +69,20 @@
 <!-- TODO: should not connect to self -->
 <!--  TODO: error handling throughout -->
 {#if !isConnected}
-<!-- bind:userName -->
+    <Hero />
+    <Features />
     <Connect
         bind:friendPeerId
         isLoading={isPeerJsLoading}
         currentUserPeerId={peerId}
         on:connect={connectToAFriend}
     />
-    {:else}
-        <div class="bg-gray-50 max-w-[600px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] mt-5">
-            <SendMessage otherPartyId={friendPeerId} on:sendMessage={sendMessage} on:sendFile={sendFile} />
-            {#if $msgs}
-                <MessageList messages={preparedMessages} />
-            {/if}
-        </div>
+    <ScrollDownArrow />
+{:else}
+    <div class="bg-gray-800 max-w-[800px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] mt-5">
+        <SendMessage otherPartyId={friendPeerId} on:sendMessage={sendMessage} on:sendFile={sendFile} on:disconnect={handleDisconnect} />
+        {#if $msgs}
+            <MessageList messages={preparedMessages} />
+        {/if}
+    </div>
 {/if}
-

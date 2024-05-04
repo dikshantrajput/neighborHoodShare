@@ -18,10 +18,10 @@
     out:fade
   >
     <!-- Modal container -->
-    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md relative">
+    <div class="bg-white rounded-lg shadow-lg p-6 pt-0 max-w-md relative">
       <!-- Close button -->
       <button
-        class="absolute top-4 right-3 text-gray-600 hover:text-gray-800 focus:outline-none"
+        class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 focus:outline-none"
         aria-label="Close"
         on:click={closeModal}
       >
@@ -42,19 +42,25 @@
       </button>
 
       <!-- QR code -->
-      <div class="flex flex-col items-center mb-4 p-5">
-        <QR
+      <div class="mt-8">
+        <p class="text-gray-400">
+          Alternatively, you can share your QR code with others to establish a connection quickly and easily.
+        </p>
+        <div class="mt-4 flex justify-center">
+          <!-- Replace this with your QR code image or component -->
+          <QR
           data={qrData}
           moduleFill="#7c3aed"
           anchorOuterFill="red"
           anchorInnerFill="#7c3aed"
           height="400"
           width="400"
-        />
+          />
+        </div>
+        <p class="mt-4 text-gray-400">
+          Simply ask your friends or colleagues to scan this QR code with their NeighborHoodShare app to connect instantly.
+        </p>
       </div>
-      <p class="text-gray-600 text-lg font-bold">
-        Scan this QR code to connect with me.
-      </p>
-    </div>
   </div>
+</div>
 {/if}

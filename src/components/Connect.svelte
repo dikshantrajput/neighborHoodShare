@@ -1,27 +1,24 @@
 <script>
-    import Button from "./Button.svelte";
     import QrModal from "./QrModal.svelte";
     import { page } from "$app/stores";
     import { createEventDispatcher } from "svelte";
+    import { fade } from "svelte/transition";
+    import Icon from "@iconify/svelte";
 
     export let isLoading = true;
-    // export let userName = "";
     export let friendPeerId = "";
-    export let currentUserPeerId = "ABC123"; // Example Peer ID, replace it with the actual value
+    export let currentUserPeerId = undefined; 
 
     let copied = false,
         isQrModalOpen = false;
     const eventDispatchers = createEventDispatcher();
 
     function connectWithFriend() {
-        // Implement connection logic here
         if (friendPeerId.trim() !== "") {
-            // You can implement connection logic here, like calling a function to establish the connection
             eventDispatchers("connect", friendPeerId);
-            // Reset the input field after connecting
             friendPeerId = "";
         } else {
-            console.log("Please enter your friend's Peer ID");
+            alert("Please enter your neighbor's Peer ID");
         }
     }
 
@@ -32,7 +29,6 @@
         }, 1000);
     };
 
-    // Function to copy the Peer ID to the clipboard
     const copyPeerIdToClipboard = async () => {
         try {
             await navigator.clipboard.writeText(currentUserPeerId);
@@ -42,10 +38,6 @@
         }
     };
 
-    const handleUsernameSubmit = () => {
-
-    }
-
     const showQrModal = () => {
         isQrModalOpen = true;
     };
@@ -53,137 +45,102 @@
     $: qrData = `${$page.url.origin}?peerId=${currentUserPeerId}`;
 </script>
 
-{#if isLoading}
-    <!-- Skeleton loading state for buttons without text -->
-    <div class="max-w-6xl mx-auto mt-8 flex flex-col lg:flex-row lg:space-x-8">
-        <!-- Left Section: Display current user's Peer ID -->
-        <div class="rounded-lg p-6 flex-1 shadow-md">
-            <h2 class="text-xl font-semibold mb-4">Your Peer ID</h2>
-            <div class="mb-4">
-                <div class="h-4 bg-gray-200 rounded mb-2"></div>
-                <div class="h-4 bg-gray-200 rounded mb-2"></div>
-                <div class="h-4 bg-gray-200 rounded mb-2"></div>
-            </div>
-            <div class="flex items-center justify-between">
-                <div class="h-8 bg-gray-200 rounded w-32 mr-2"></div>
-                <div class="h-8 bg-gray-200 rounded w-20"></div>
-            </div>
-        </div>
-
-        <!-- Vertical Separator -->
-        <div class="border-l border-gray-200 hidden lg:block"></div>
-
-        <!-- Right Section: Connect with a Friend -->
-        <div class="rounded-lg p-6 flex-1 shadow-md">
-            <div class="mb-4">
-                <div class="h-4 bg-gray-200 rounded w-64 mb-2"></div>
-                <div class="h-4 bg-gray-200 rounded w-48 mb-2"></div>
-                <div class="h-4 bg-gray-200 rounded w-52 mb-2"></div>
-            </div>
-            <form on:submit|preventDefault={connectWithFriend}>
-                <div class="mb-6">
-                    <div class="h-4 bg-gray-200 rounded mb-2"></div>
+{#if isLoading || !currentUserPeerId}
+    <div class="bg-gray-800 py-16 animate-pulse">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-gray-700 p-6 rounded-lg mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-5 bg-gray-600 rounded w-24"></div>
+                    <div class="h-5 bg-gray-600 rounded w-16"></div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <button
-                        class="bg-gray-200 text-gray-600 py-2 px-4 rounded-md shadow-md w-32 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 animate-pulse"
-                    ></button>
-                    <div
-                        class="w-16 h-6 bg-gray-200 rounded animate-pulse"
-                    ></div>
-                </div>
-            </form>
+                <div class="h-10 bg-gray-600 rounded mb-4"></div>
+                <div class="h-5 bg-gray-600 rounded mb-4"></div>
+                <div class="h-6 bg-gray-600 rounded w-48 mb-4"></div>
+                <div class="h-10 bg-gray-600 rounded w-24 mb-4"></div>
+            </div>
         </div>
     </div>
 {:else}
-    <QrModal {qrData} bind:open={isQrModalOpen} />
-    <div class="max-w-6xl mx-auto mt-8 flex flex-col lg:flex-row lg:space-x-8">
-        <!-- Left Section: Display current user's Peer ID -->
-        <div class="rounded-lg p-6 flex-1">
-            <h2 class="text-xl font-semibold mb-4">Your Peer ID</h2>
-            <p class="text-sm text-gray-600 mb-4">
+<section class="bg-gray-800 py-16" id="connect">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:text-center">
+            <h2
+                class="text-base font-semibold text-indigo-600 uppercase tracking-wide"
+                in:fade={{ delay: 100, duration: 500 }}
+            >
+                Connect with neighbors
+            </h2>
+            <p
+                class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-100 sm:text-4xl"
+                in:fade={{ delay: 200, duration: 500 }}
+            >
+                Share Your Peer ID
+            </p>
+            <p
+                class="mt-4 max-w-2xl text-xl text-gray-400 lg:mx-auto"
+                in:fade={{ delay: 300, duration: 500 }}
+            >
                 Your Peer ID is a unique identifier that allows you to connect
                 with others in the network. Share this ID with your friends to
                 establish connections.
-                <br /><br />
-                With your Peer ID, you can securely communicate and share files with
-                friends and contacts.
-                <br /><br />
-                Keep your Peer ID private and only share it with trusted individuals
-                to maintain security.
             </p>
+        </div>
 
-            <!-- <div class="flex items-center mb-4">
-                <form on:submit|preventDefault={handleUsernameSubmit}>
-                    <div class="flex items-center">
-                        <input
-                            id="userName"
-                            type="text"
-                            bind:value={userName}
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-                            placeholder="Enter your username"
-                        />
-                        <Button>Save</Button>
-                    </div>
-                </form>
-            </div> -->
-
-            <div class="flex">
-                <div class="text-lg font-semibold mr-2">
-                    {currentUserPeerId}
-                </div>
-                {#if currentUserPeerId}
-                    <button on:click={copyPeerIdToClipboard}>
-                        {#if !copied}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                ><path
-                                    d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"
-                                /></svg
-                            >
-                        {:else}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                ><path
-                                    d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24zm-5.541 8.409l-1.422-1.409-7.021 7.183-3.08-2.937-1.395 1.435 4.5 4.319 8.418-8.591z"
-                                /></svg
-                            >
-                        {/if}
-                    </button>
-                {/if}
+        <div class="mt-10 sm:mx-auto sm:max-w-lg sm:flex">
+            <div class="min-w-0 flex-1">
+                <label for="peerIdInput" class="sr-only">
+                    Enter Peer ID to Connect
+                </label>
+                <input
+                    id="peerIdInput"
+                    type="text"
+                    placeholder="Enter Peer ID to Connect"
+                    class="block w-full px-5 py-3 text-base text-gray-300 placeholder-gray-500 transition duration-500 ease-in-out transform border border-transparent rounded-md bg-gray-700 focus:outline-none focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2"
+                    bind:value={friendPeerId}
+                />
+            </div>
+            <div class="mt-4 sm:mt-0 sm:ml-3">
+                <button
+                    type="button"
+                    class="block w-full px-5 py-3 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:px-10 rounded-md"
+                    on:click={connectWithFriend}
+                >
+                    Connect
+                </button>
             </div>
         </div>
 
-        <!-- Vertical Separator -->
-        <div class="border-l border-gray-200 hidden lg:block"></div>
-
-        <!-- Right Section: Connect with a Friend -->
-        <div class="rounded-lg p-6 flex-1">
-            <h2 class="text-xl font-semibold mb-4 text-center lg:text-left">
-                Connect with a Friend
-            </h2>
-            <form on:submit|preventDefault={connectWithFriend}>
-                <div class="mb-6">
-                    <input
-                        id="friendPeerId"
-                        type="text"
-                        required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-                        placeholder="Enter your friend's Peer ID"
-                        bind:value={friendPeerId}
-                    />
+        <div class="mt-8 text-center">
+            <p class="text-gray-400">
+                With your Peer ID, you can securely communicate and share files
+                with friends and contacts. Keep your Peer ID private and only
+                share it with trusted individuals to maintain security.
+            </p>
+            <div class="mt-4 flex justify-center items-center gap-4">
+                <div class="flex">
+                    <p class="text-gray-100 font-bold mr-1">
+                        Your Peer ID: {currentUserPeerId}
+                    </p>
+                    {#if currentUserPeerId}
+                        <button on:click={copyPeerIdToClipboard} class="!text-white">
+                            {#if !copied}
+                                <Icon icon="solar:copy-line-duotone" width="20" />
+                            {:else}
+                                <Icon icon="solar:copy-line-duotone" width="20" color="lightgreen" />
+                            {/if}
+                        </button>
+                    {/if}
                 </div>
-                <Button>Connect</Button>
-            </form>
-            <p class="text-center my-2 w-full">OR</p>
-            <Button on:click={showQrModal}>Show QR code</Button>
+                <button
+                    type="button"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-xs"
+                    on:click={showQrModal}
+                >
+                    QR Code
+                </button>
+            </div>
+            <QrModal open={isQrModalOpen} {qrData} />
         </div>
     </div>
+</section>
 {/if}

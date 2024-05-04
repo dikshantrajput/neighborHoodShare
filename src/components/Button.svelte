@@ -1,9 +1,7 @@
-<!-- not working -->
 <script>
     import { createEventDispatcher } from "svelte";
 
     // Props for the button component
-    export let color = 'indigo-600';
     export let textColor = 'white';
     export let hoverColor = 'indigo-dark';
     export let disabled = false;
@@ -22,7 +20,7 @@
   </script>
   
   <button
-    class="py-2 px-4 w-full rounded-md transition duration-300 font-semibold ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-50 bg-{color} text-{textColor} hover:bg-{hoverColor} {buttonClass}"
+    class="py-2 px-4 w-full rounded-md transition duration-300 font-semibold ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-50 bg-accent-custom text-{textColor} hover:bg-{hoverColor} {buttonClass}"
     on:click={handleClick}
     {disabled}
 >

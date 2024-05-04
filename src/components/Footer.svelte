@@ -2,7 +2,7 @@
     <div class="container mx-auto flex justify-between items-center">
         <!-- Copyright Information -->
         <div>
-            <p>&copy; 2024 PeerLink. All rights reserved.</p>
+            <p>&copy; 2024 NeighborHoodShare. All rights reserved.</p>
         </div>
 
         <!-- Social Media Icons -->

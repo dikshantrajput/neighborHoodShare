@@ -2,6 +2,7 @@ import { writable } from "svelte/store";
 import { dataTypes, fileSignals } from "./constants";
 import { bufferToObjectURL, chunkGenerator, combineUint8Arrays, formatCurrentDateTime } from "./helpers";
 import { toast } from "svelte-sonner";
+import mixpanel from "mixpanel-browser";
 
 class Room{
     you;
@@ -70,10 +71,12 @@ class Room{
                 this.fileName = "";
                 this.fileReceivingToastId && toast.dismiss(this.fileReceivingToastId)
                 this.fileReceivingToastId = undefined
+                mixpanel.track('File sent')
                 toast.success("File received...")
             }
         } else if(type === dataTypes.message){
             this.appendMessagesList({peerId: this.their, message: data?.binary, type: dataTypes.message, createdAt: data.createdAt})
+            mixpanel.track('Message sent')
         } 
         // else if(type === dataTypes.userName){
         //     this.userNames.their = data.binary.userName

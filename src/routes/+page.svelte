@@ -11,6 +11,7 @@
     import ScrollDownArrow from "../components/v2/ScrollDownArrow.svelte";
     import { toast } from "svelte-sonner";
     import VideoEmbed from "../components/VideoEmbed.svelte";
+    import mixpanel from "mixpanel-browser";
 
     let peerId = "";
     let friendPeerId = "";
@@ -50,11 +51,13 @@
                 friendPeerId = peer.otherPartyId
                 isConnected = true;
                 room = new Room(event?.channel, peerId, friendPeerId)
+                mixpanel.track('Connected with neighbor')
                 toast.success("Connected!!!")
             }
             if(event?.type === "connectionDropped"){
                 friendPeerId = ""
                 isConnected = false;
+                mixpanel.track('Disconnected')
                 toast.success("Disconnected!!!")
             }
         })

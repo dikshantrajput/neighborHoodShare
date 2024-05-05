@@ -12,6 +12,7 @@
     import { toast } from "svelte-sonner";
     import VideoEmbed from "../components/VideoEmbed.svelte";
     import mixpanel from "mixpanel-browser";
+    import Promotion from "../components/Promotion.svelte";
 
     let peerId = "";
     let friendPeerId = "";
@@ -84,6 +85,7 @@
     />
     <ScrollDownArrow />
     <VideoEmbed videoId="eng6yfv5aco" />
+    <Promotion />
 {:else}
     <div class="bg-gray-800 max-w-[800px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] mt-5" style="scrollbar-width: none;-ms-overflow-style: none;">
         <SendMessage otherPartyId={friendPeerId} on:sendMessage={sendMessage} on:sendFile={sendFile} on:disconnect={handleDisconnect} />

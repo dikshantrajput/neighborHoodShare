@@ -5,6 +5,9 @@ const config = {
 	darkMode: ["class"],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
 	safelist: ["dark"],
+	plugins: [
+		require('@tailwindcss/line-clamp'),
+	],
 	theme: {
 		container: {
 			center: true,

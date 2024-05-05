@@ -10,6 +10,7 @@
     import Features from "../components/v2/Features.svelte";
     import ScrollDownArrow from "../components/v2/ScrollDownArrow.svelte";
     import { toast } from "svelte-sonner";
+    import VideoEmbed from "../components/VideoEmbed.svelte";
 
     let peerId = "";
     let friendPeerId = "";
@@ -79,6 +80,7 @@
         on:connect={connectToAFriend}
     />
     <ScrollDownArrow />
+    <VideoEmbed videoId="eng6yfv5aco" />
 {:else}
     <div class="bg-gray-800 max-w-[800px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] mt-5" style="scrollbar-width: none;-ms-overflow-style: none;">
         <SendMessage otherPartyId={friendPeerId} on:sendMessage={sendMessage} on:sendFile={sendFile} on:disconnect={handleDisconnect} />

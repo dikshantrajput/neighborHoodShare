@@ -80,7 +80,7 @@
     />
     <ScrollDownArrow />
 {:else}
-    <div class="bg-gray-800 max-w-[800px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] mt-5">
+    <div class="bg-gray-800 max-w-[800px] rounded-sm shadow-md mx-auto overflow-scroll max-h-[calc(100vh-200px)] mt-5" style="scrollbar-width: none;-ms-overflow-style: none;">
         <SendMessage otherPartyId={friendPeerId} on:sendMessage={sendMessage} on:sendFile={sendFile} on:disconnect={handleDisconnect} />
         {#if $msgs}
             <MessageList messages={preparedMessages} />

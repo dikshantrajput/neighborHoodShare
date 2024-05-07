@@ -20,7 +20,6 @@
             in:fade={{ delay: 400, duration: 500 }}
         >
 
-            <!-- Add more project cards here -->
             <div class="pt-6">
                 <div class="flow-root bg-gray-900 rounded-lg px-6 pb-8">
                     <div class="-mt-6">
@@ -68,7 +67,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Add more project cards here -->
             <div class="pt-6">
                 <div class="flow-root bg-gray-900 rounded-lg px-6 pb-8">
                     <div class="-mt-6">

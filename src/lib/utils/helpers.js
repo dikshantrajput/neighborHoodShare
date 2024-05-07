@@ -86,10 +86,8 @@ export const formatCurrentDateTime = () => {
 }
 
 export const bufferToObjectURL = (buffer) => {
-    // Create a Blob from the buffer data
     const blob = new Blob([buffer]);
 
-    // Create an Object URL from the Blob
     const objectURL = URL.createObjectURL(blob);
 
     return objectURL;

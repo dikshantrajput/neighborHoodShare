@@ -47,13 +47,6 @@ class Room{
                 data.binary.signal === fileSignals.progress
             ) {
                 this.fileChunks.push(data.binary.buffer);
-                // currentChunkCount = data.binary.currentChunkCount;
-                // const currentTs = Math.floor(Date.now() / 1000);
-                // speed =
-                //     ((currentChunkCount /
-                //         (currentTs - fileChunkStartTimestampInMs)) *
-                //         chunkSize) /
-                //     1024;
             }
 
             if (data.binary.signal === fileSignals.start) {
@@ -78,9 +71,6 @@ class Room{
             this.appendMessagesList({peerId: this.their, message: data?.binary, type: dataTypes.message, createdAt: data.createdAt})
             mixpanel.track('Message sent')
         } 
-        // else if(type === dataTypes.userName){
-        //     this.userNames.their = data.binary.userName
-        // }
     }
 
     generateSendDataPayload(type, binary){
@@ -100,14 +90,6 @@ class Room{
         this.appendMessagesList({peerId: this.you, message: msg, type: dataTypes.message, createdAt: data.createdAt})
     }
 
-    // sendUsername(userName){
-    //     if(userName){
-    //         this.userNames.you = userName
-    //         const data = this.generateSendDataPayload(dataTypes.userName, userName);
-    //         this.sendData(data)
-    //     }
-    // }
-    
     appendMessagesList(data){
         this.messages.update((prev) => [data , ...prev ])
     }

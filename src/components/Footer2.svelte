@@ -1,7 +1,6 @@
 <script>
   import Icon from '@iconify/svelte';
 </script>
-
 <footer class="bg-gray-900">
   <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
     <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
@@ -21,5 +20,11 @@
         </a>
       </div>
     </div>
+  </div>
+  <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8 text-gray-400">
+    <!-- Privacy Policy Link -->
+    <a href="/privacy-policy" class="mr-4 hover:text-gray-300">Privacy Policy</a>
+    <!-- Terms and Conditions Link -->
+    <a href="/tnc" class="hover:text-gray-300">Terms and Conditions</a>
   </div>
 </footer>

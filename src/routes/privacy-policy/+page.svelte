@@ -3,7 +3,7 @@
     <p class=" mb-4">Effective Date: 24/06/2024</p>
   
     <p class=" mb-8">
-      CodeCarona is committed to protecting your privacy and the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and store your information when you use our peer-to-peer file-sharing application ("NeighborHoodShare" or "the Application").
+      CodeCarona is committed to protecting your privacy and the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and store your information when you use our peer-to-peer file-sharing application ("NeighborHoodShare").
     </p>
   
     <h2 class="text-2xl font-bold mb-4">Information We Collect</h2>
@@ -14,7 +14,7 @@
     </ul>
   
     <h2 class="text-2xl font-bold mb-4">How We Use Your Information</h2>
-  
+    NeighborHoodShare
     <ul class="list-disc pl-4 mb-8">
       <li class="">To operate and maintain NeighborHoodShare</li>
       <li class="">To connect you with other users on the network (based on shared Peer IDs)</li>

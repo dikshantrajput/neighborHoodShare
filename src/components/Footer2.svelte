@@ -25,6 +25,9 @@
     <!-- Privacy Policy Link -->
     <a href="/privacy-policy" class="mr-4 hover:text-gray-300">Privacy Policy</a>
     <!-- Terms and Conditions Link -->
-    <a href="/tnc" class="hover:text-gray-300">Terms and Conditions</a>
+    <a href="/tnc" class="mr-4 hover:text-gray-300">Terms and Conditions</a>
+    <a
+      href="mailto:adblitz07@gmail.com">Contact us</a
+    >
   </div>
 </footer>

@@ -64,7 +64,7 @@
 
   <h2 class="text-xl font-semibold mb-2">9. Limitation of Liability</h2>
   <div class="mb-4">
-    In no event shall NeighborHoodShare, nor its directors, employees, partners,
+    In no event shall CodeCarona, nor its directors, employees, partners,
     agents, suppliers, or affiliates, be liable for any indirect, incidental,
     special, consequential, or punitive damages, including without limitation,
     loss of profits, data, use, goodwill, or other intangible losses, resulting
@@ -81,7 +81,7 @@
   <h2 class="text-xl font-semibold mb-2">10. Governing Law</h2>
   <p class="mb-4">
     These Terms shall be governed and construed in accordance with the laws of
-    the jurisdiction in which NeighborHoodShare Inc. is established, without
+    the jurisdiction in which CodeCarona. is established, without
     regard to its conflict of law provisions.
   </p>
 

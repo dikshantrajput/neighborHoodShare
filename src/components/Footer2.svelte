@@ -31,9 +31,6 @@
       href="mailto:adblitz07@gmail.com">Contact:
       <br />
       email us at adblitz07@gmail.com
-      <br />
-      jyoti park,
-      gurugram, haryana, India
       </a
     >
   </div>

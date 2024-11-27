@@ -109,7 +109,7 @@ class Room{
             const toastId = toast.loading("Sharing file with neighbor...") 
             const buff = await file.arrayBuffer()
             // send signal of file sharing
-            this.sendData(this.generateSendDataPayload(dataTypes.file, { fileName: file.name, totalChunks: Math.floor(buff.byteLength / this.chunkSize), signal: fileSignals.start }))
+            this.sendData(this.generateSendDataPayload(dataTypes.file, { fileName: file.name, totalChunks: Math.ceil(buff.byteLength / this.chunkSize), signal: fileSignals.start }))
     
             // send signal of file sharing in progress
             this.sendFileChunks(buff)
